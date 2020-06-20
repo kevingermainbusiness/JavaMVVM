@@ -1,5 +1,7 @@
 package com.kevincodes.javamvvm.viewmodels;
 
+import android.os.AsyncTask;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -7,11 +9,14 @@ import androidx.lifecycle.ViewModel;
 import com.kevincodes.javamvvm.models.NicePlace;
 import com.kevincodes.javamvvm.repositories.NicePlaceRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivityViewModel extends ViewModel {
     private MutableLiveData<List<NicePlace>> mNicePlaces;
     private NicePlaceRepository mRepo;
+
+    private MutableLiveData<Boolean> mIsUpdating = new MutableLiveData<>();
 
     public void init(){
         if(mNicePlaces != null){
@@ -22,7 +27,35 @@ public class MainActivityViewModel extends ViewModel {
 
     }
 
+    public void addNewPlaces(final NicePlace nicePlace){
+        mIsUpdating.setValue(true);
+        new AsyncTask<Void,Void,Void>(){
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                List<NicePlace> currentPlaces = mNicePlaces.getValue();
+                currentPlaces.add(nicePlace);
+                mNicePlaces.postValue(currentPlaces);
+                mIsUpdating.postValue(false);
+            }
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        }.execute();
+    }
+
     public LiveData<List<NicePlace>> getNicePlaces(){
         return mNicePlaces;
+    }
+
+    public LiveData<Boolean> getUpdatingState(){
+        return mIsUpdating;
     }
 }

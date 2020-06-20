@@ -16,6 +16,7 @@ import com.kevincodes.javamvvm.models.NicePlace;
 import com.kevincodes.javamvvm.viewmodels.MainActivityViewModel;
 
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -42,6 +43,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<NicePlace> nicePlaces) {
                 recyclerAdapter.notifyDataSetChanged();
+            }
+        });
+        mainActivityViewModel.getUpdatingState().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+                    showProgressBar();
+                }else{
+                    hideProgressBar();
+                    mRecyclerView.smoothScrollToPosition(Objects
+                            .requireNonNull(
+                                    mainActivityViewModel.getNicePlaces().getValue()).size() -1);
+                }
+            }
+        });
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mainActivityViewModel.addNewPlaces(
+                        new NicePlace("Mahahual",
+                                "https://i.redd.it/k98uzl68eh501.jpg"));
             }
         });
 
